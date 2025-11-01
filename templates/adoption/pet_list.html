@@ -148,7 +148,7 @@
             <div class="card h-100 shadow-sm pet-card">
                 <div class="position-relative">
                     <img src="{{ pet.image.url }}" class="card-img-top pet-image" alt="{{ pet.name }}" 
-                         style="height: 200px; object-fit: cover; cursor: pointer;" 
+                         style="height: 200px; object-fit: contain; background-color: #f8f9fa; cursor: pointer;" 
                          data-pet-url="{% url 'pet_detail' pet.pk %}">
                     <div class="position-absolute top-0 end-0 m-2">
                         <span class="badge bg-{% if pet.is_available %}success{% else %}secondary{% endif %}">
