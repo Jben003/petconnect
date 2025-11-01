@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-primary">Adoption Requests</h1>
+                    <p class="text-muted">Manage adoption requests for your pets</p>
+                </div>
+                <div>
+                    <!-- Status Filter -->
+                    <form method="GET" class="d-flex gap-2">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                            <option value="in_delivery" {% if status_filter == 'in_delivery' %}selected{% endif %}>In Delivery</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if adoption_requests %}
+    <div class="row">
+        <div class="col-12">
+            {% for request in adoption_requests %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Pet Image -->
+                        <div class="col-md-2">
+                            <img src="{{ request.pet.image.url }}" alt="{{ request.pet.name }}" 
+                                 class="img-fluid rounded" style="height: 120px; object-fit: cover;">
+                        </div>
+
+                        <!-- Request Details -->
+                        <div class="col-md-7">
+                            <h5>{{ request.pet.name }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-paw me-1"></i>{{ request.pet.breed }} • 
+                                <i class="fas fa-birthday-cake me-1"></i>{{ request.pet.get_age_display }}
+                            </p>
+                            
+                            <p class="mb-1"><strong>Adopter:</strong> {{ request.adopter.username }}</p>
+                            <p class="mb-1"><strong>Email:</strong> {{ request.adopter.email }}</p>
+                            <p class="mb-1"><strong>Phone:</strong> {{ request.adopter.profile.phone_number }}</p>
+                            
+                            <p class="mb-1 mt-2"><strong>Adopter's Message:</strong></p>
+                            <p class="text-muted">{{ request.message|default:"No message provided" }}</p>
+                            
+                            <p class="mb-1"><strong>Delivery Address:</strong></p>
+                            <p class="text-muted small">{{ request.delivery_address }}</p>
+                        </div>
+
+                        <!-- Status, Payment, Actions -->
+                        <div class="col-md-3">
+                            <div class="text-end">
+                                <!-- Adoption Status Badge -->
+                                <span class="badge 
+                                    {% if request.status == 'pending' %}bg-warning
+                                    {% elif request.status == 'approved' %}bg-success
+                                    {% elif request.status == 'rejected' %}bg-danger
+                                    {% elif request.status == 'in_delivery' %}bg-info
+                                    {% elif request.status == 'completed' %}bg-primary
+                                    {% else %}bg-secondary{% endif %} 
+                                    fs-6 mb-3">
+                                    {{ request.get_status_display }}
+                                </span>
+
+                                <!-- Payment Status Badge -->
+                                {% if request.payment_amount > 0 %}
+                                <div class="mb-2">
+                                    <span class="badge {{ request.get_payment_status_badge_class }} fs-6">
+                                        Payment: {{ request.get_payment_status_display }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Submitted Date -->
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ request.created_at|date:"M d, Y" }}
+                                </p>
+
+                                <!-- ACTION BUTTONS BASED ON STATUS -->
+                                {% if request.status == 'pending' %}
+                                <div class="btn-group-vertical w-100">
+                                    <form method="POST" action="{% url 'adoption_request_approve' request.pk %}" class="mb-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm w-100"
+                                                onclick="return confirm('Approve this adoption request? This will reject all other pending requests for {{ request.pet.name }}.')">
+                                            <i class="fas fa-check me-1"></i>Approve
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{% url 'adoption_request_reject' request.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm w-100"
+                                                onclick="return confirm('Reject this adoption request?')">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {% elif request.status == 'approved' %}
+                                <div class="btn-group-vertical w-100">
+                                    <a href="{% url 'adoption_request_start_delivery' request.pk %}" class="btn btn-info btn-sm w-100 mb-2">
+                                        <i class="fas fa-truck me-1"></i>Start Delivery
+                                    </a>
+                                </div>
+
+                                {% elif request.status == 'in_delivery' %}
+                                <div class="btn-group-vertical w-100">
+                                    <a href="{% url 'adoption_request_complete_delivery' request.pk %}" class="btn btn-primary btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>Complete Delivery
+                                    </a>
+                                    <small class="text-muted mt-1 d-block">
+                                        Est: {{ request.estimated_delivery_date|date:"M d" }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No adoption requests</h3>
+            <p class="text-muted">
+                {% if status_filter %}
+                    No {{ status_filter }} adoption requests found.
+                {% else %}
+                    You haven't received any adoption requests yet.
+                {% endif %}
+            </p>
+            <a href="{% url 'pet_list' %}" class="btn btn-primary">
+                <i class="fas fa-paw me-2"></i>Browse Pets
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+.btn-group-vertical .btn {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+

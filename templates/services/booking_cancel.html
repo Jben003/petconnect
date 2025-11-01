@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Cancel Booking</h3>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-times-circle fa-4x text-warning mb-3"></i>
+                    <h4>Cancel booking for {{ booking.service.name }}?</h4>
+                    <p class="text-muted">This action cannot be undone. The service provider will be notified of your cancellation.</p>
+                    
+                    <div class="alert alert-info text-start">
+                        <h6>Booking Details:</h6>
+                        <p class="mb-1"><strong>Service:</strong> {{ booking.service.name }}</p>
+                        <p class="mb-1"><strong>Provider:</strong> {{ booking.service.shelter.username }}</p>
+                        <p class="mb-1"><strong>Booking Time:</strong> {{ booking.booking_date|date:"M d, Y H:i" }}</p>
+                        <p class="mb-0"><strong>Status:</strong> {{ booking.get_status_display }}</p>
+                    </div>
+
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'my_bookings' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Go Back
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-times me-2"></i>Yes, Cancel Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

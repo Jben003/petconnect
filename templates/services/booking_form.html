@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-calendar me-2"></i>Book {{ service.name }}</h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Service Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <img src="{{ service.image.url }}" alt="{{ service.name }}" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ service.name }}</h4>
+                            <p class="text-muted">
+                                <i class="fas fa-tag me-1"></i>{{ service.get_category_display }}<br>
+                                <i class="fas fa-clock me-1"></i>{{ service.duration }}<br>
+                                <i class="fas fa-home me-1"></i>Provider: {{ service.shelter.username }}
+                            </p>
+                            <p><strong>Price:</strong> <span class="h5 text-primary">₹{{ service.price }}</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Address Information -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-home me-2"></i>Service Address</h6>
+                        <p class="mb-0">{{ request.user.profile.address }}</p>
+                        <small class="text-muted">This address will be used for the service. Update your profile if needed.</small>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="form-label fw-bold">Booking Date & Time *</label>
+                                    {{ form.booking_date }}
+                                    {% if form.booking_date.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.booking_date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Select when you want the service to be performed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold">Special Instructions</label>
+                            {{ form.special_instructions }}
+                            {% if form.special_instructions.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.special_instructions.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Any special requirements or instructions for the service provider</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'service_detail' service.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Service
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check me-2"></i>Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

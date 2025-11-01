@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-truck me-2"></i>Start Delivery</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shipping-fast fa-3x text-info mb-3"></i>
+                        <h4>Start Delivery for {{ adoption_request.pet.name }}</h4>
+                        <p class="text-muted">Update the status to "In Delivery" and set the estimated delivery date.</p>
+                    </div>
+
+                    <!-- Status Information -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Request Information</h6>
+                        <p class="mb-1"><strong>Pet:</strong> {{ adoption_request.pet.name }}</p>
+                        <p class="mb-1"><strong>Adopter:</strong> {{ adoption_request.adopter.username }}</p>
+                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">{{ adoption_request.get_status_display }}</span></p>
+                        <p class="mb-1"><strong>Payment:</strong> 
+                            <span class="badge {% if adoption_request.payment_status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                {{ adoption_request.get_payment_status_display }}
+                            </span>
+                            {% if adoption_request.payment_amount > 0 %}
+                                - ₹{{ adoption_request.payment_amount }}
+                            {% else %}
+                                - Free
+                            {% endif %}
+                        </p>
+                        <p class="mb-0"><strong>Address:</strong> {{ adoption_request.delivery_address }}</p>
+                    </div>
+
+                    {% if adoption_request.payment_status != 'completed' and adoption_request.payment_amount > 0 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Payment Pending:</strong> Delivery cannot start until payment is completed.
+                        The adopter needs to complete the payment of ₹{{ adoption_request.payment_amount }}.
+                    </div>
+                    {% else %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold">Estimated Delivery Date *</label>
+                            {{ form.estimated_delivery_date }}
+                            {% if form.estimated_delivery_date.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.estimated_delivery_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{{ form.estimated_delivery_date.help_text }}</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'shelter_adoption_requests' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-truck me-2"></i>Start Delivery
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">Professional Pet Services</h1>
+            <p class="lead text-muted">Find the best care services for your beloved pets</p>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" id="filterForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="search" 
+                                           placeholder="Search services..." value="{{ search_query }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="category" id="categorySelect">
+                                    <option value="">All Categories</option>
+                                    {% for category_value, category_name in categories %}
+                                        <option value="{{ category_value }}" {% if selected_category == category_value %}selected{% endif %}>
+                                            {{ category_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" name="sort_by" id="sortSelect">
+                                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                                    <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name A-Z</option>
+                                    <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %}>Name Z-A</option>
+                                    <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                    <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <button type="submit" class="btn btn-primary flex-fill">
+                                        <i class="fas fa-filter me-2"></i>Apply Filters
+                                    </button>
+                                    <a href="{% url 'service_list' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Clear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Count and Shelter Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5 class="text-muted">
+                {% if services %}
+                    Found {{ services|length }} service{{ services|length|pluralize }}
+                {% else %}
+                    No services found
+                {% endif %}
+            </h5>
+        </div>
+        {% if user.is_authenticated and user.profile.role == 'shelter' %}
+        <div class="col-md-6 text-end">
+            <a href="{% url 'service_create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Add New Service
+            </a>
+            <a href="{% url 'my_services' %}" class="btn btn-outline-primary">
+                <i class="fas fa-concierge-bell me-2"></i>My Services
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Services Grid -->
+    {% if services %}
+    <div class="row g-4">
+        {% for service in services %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm service-card">
+                <div class="position-relative">
+                    <img src="{{ service.image.url }}" class="card-img-top service-image" alt="{{ service.name }}" 
+                         style="height: 200px; object-fit: cover; cursor: pointer;" 
+                         data-service-url="{% url 'service_detail' service.pk %}">
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-{% if service.is_available %}success{% else %}secondary{% endif %}">
+                            {% if service.is_available %}Available{% else %}Unavailable{% endif %}
+                        </span>
+                    </div>
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge bg-primary">{{ service.get_category_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title service-name" style="cursor: pointer;" data-service-url="{% url 'service_detail' service.pk %}">
+                        {{ service.name }}
+                    </h5>
+                    <div class="service-meta mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ service.duration }}<br>
+                            <i class="fas fa-home me-1"></i>By {{ service.shelter.username }}
+                        </small>
+                    </div>
+                    <p class="card-text flex-grow-1">{{ service.description|truncatewords:20 }}</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 text-primary mb-0">₹{{ service.price }}</span>
+                            <div class="btn-group">
+                                <a href="{% url 'service_detail' service.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                {% if user.is_authenticated and user.profile.role == 'adopter' and service.is_available %}
+                                <a href="{% url 'booking_create' service.pk %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-calendar me-1"></i>Book
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-concierge-bell fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No services found</h3>
+            <p class="text-muted">Try adjusting your search criteria or check back later.</p>
+            {% if user.is_authenticated and user.profile.role == 'shelter' %}
+            <a href="{% url 'service_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Add Your First Service
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.service-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 15px;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.service-meta {
+    border-left: 3px solid #667eea;
+    padding-left: 10px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    padding: 10px;
+    border-radius: 5px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const autoSubmitFields = ['sortSelect', 'categorySelect'];
+    
+    autoSubmitFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+
+    // Add click event listeners for service images and names
+    const serviceImages = document.querySelectorAll('.service-image');
+    const serviceNames = document.querySelectorAll('.service-name');
+    
+    serviceImages.forEach(img => {
+        img.addEventListener('click', function() {
+            const serviceUrl = this.getAttribute('data-service-url');
+            window.location.href = serviceUrl;
+        });
+    });
+    
+    serviceNames.forEach(name => {
+        name.addEventListener('click', function() {
+            const serviceUrl = this.getAttribute('data-service-url');
+            window.location.href = serviceUrl;
+        });
+    });
+});
+</script>
+{% endblock %}
+

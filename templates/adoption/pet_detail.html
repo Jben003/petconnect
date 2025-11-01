@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Pet Images -->
+            <div class="card shadow-sm mb-4">
+                <img src="{{ pet.image.url }}" class="card-img-top" alt="{{ pet.name }}" style="max-height: 500px; object-fit: cover;">
+            </div>
+            
+            <!-- Pet Description -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">About {{ pet.name }}</h4>
+                    <p class="card-text">{{ pet.description }}</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Details</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Type:</strong> {{ pet.get_pet_type_display }}</li>
+                                <li><strong>Breed:</strong> {{ pet.breed }}</li>
+                                <li><strong>Age:</strong> {{ pet.get_age_display }}</li>
+                                <li><strong>Gender:</strong> {{ pet.get_gender_display }}</li>
+                                <li><strong>Size:</strong> {{ pet.get_size_display }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Adoption Info</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Status:</strong> 
+                                    <span class="badge bg-{% if pet.is_available %}success{% else %}secondary{% endif %}">
+                                        {% if pet.is_available %}Available for Adoption{% else %}Adopted{% endif %}
+                                    </span>
+                                </li>
+                                <li><strong>Adoption Fee:</strong> 
+                                    <span class="h5 text-primary">
+                                        {% if pet.price > 0 %}
+                                            ₹{{ pet.price }}
+                                        {% else %}
+                                            Free
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                <li><strong>Listed by:</strong> {{ pet.shelter.username }}</li>
+                                <li><strong>Listed on:</strong> {{ pet.created_at|date:"M d, Y" }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Action Card -->
+            <div class="card shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ pet.name }}</h3>
+                    <p class="text-muted">A lovely {{ pet.get_pet_type_display|lower }} looking for a home</p>
+                    
+                    <!-- Adoption Button Section -->
+                    {% if pet.is_available %}
+                        {% if user.is_authenticated and user.profile.role == 'adopter' %}
+                            <!-- Use a direct link instead of button with JavaScript -->
+                            <a href="{% url 'adoption_request_create' pet.pk %}" class="btn btn-primary btn-lg w-100 mb-3" id="adoptBtn">
+                                <i class="fas fa-heart me-2"></i>Adopt {{ pet.name }}
+                            </a>
+                        {% elif not user.is_authenticated %}
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-heart me-2"></i>Login to Adopt
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-secondary btn-lg w-100 mb-3" disabled>
+                            <i class="fas fa-check me-2"></i>Already Adopted
+                        </button>
+                    {% endif %}
+                    
+                    {% if user == pet.shelter %}
+                    <div class="border-top pt-3">
+                        <h6>Manage Listing</h6>
+                        <div class="btn-group w-100">
+                            <a href="{% url 'pet_update' pet.pk %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                            <a href="{% url 'pet_delete' pet.pk %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove the old modal completely since we're not using it anymore -->
+{% endblock %}

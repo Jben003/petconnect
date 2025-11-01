@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create Your Account</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- Account Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">I want to:</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-check card h-100 p-0">
+                                        <input class="form-check-input" type="radio" name="role" id="role_adopter" value="adopter" checked>
+                                        <label class="form-check-label card-body text-center" for="role_adopter">
+                                            <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                                            <h5>Adopt a Pet</h5>
+                                            <small class="text-muted">Find your perfect pet companion</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check card h-100 p-0">
+                                        <input class="form-check-input" type="radio" name="role" id="role_shelter" value="shelter">
+                                        <label class="form-check-label card-body text-center" for="role_shelter">
+                                            <i class="fas fa-paw fa-2x text-primary mb-2"></i>
+                                            <h5>List Pets & Services</h5>
+                                            <small class="text-muted">Shelter or service provider</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if form.role.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.role.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- User Information -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Username *</label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.username.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email Address *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.email.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ✅ Updated Password Fields -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Password *</label>
+                                    <input type="password" name="password1" class="form-control" required>
+                                    {% if form.password1.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.password1.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">{{ form.password1.help_text }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Confirm Password *</label>
+                                    <input type="password" name="password2" class="form-control" required>
+                                    {% if form.password2.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.password2.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">{{ form.password2.help_text }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-group mb-3">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="text" name="phone_number" class="form-control" value="{{ request.POST.phone_number|default:'' }}" required>
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.phone_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">Address *</label>
+                            <textarea name="address" class="form-control" rows="3" required>{{ request.POST.address|default:'' }}</textarea>
+                            <div class="form-text">
+                                This address will be used for pet delivery and service bookings.
+                            </div>
+                            {% if form.address.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Login Redirect -->
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            Already have an account?
+                            <a href="{% url 'login' %}" class="text-decoration-none">Sign In</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+.form-check-input {
+    margin-top: 0.5rem;
+    position: absolute;
+    opacity: 0;
+}
+.form-check.card {
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.form-check-input:checked + .card,
+.form-check-input:checked ~ .form-check-label {
+    border-color: #667eea;
+    background-color: #f8f9ff;
+}
+.form-check-label {
+    width: 100%;
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+

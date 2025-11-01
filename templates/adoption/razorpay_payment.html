@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow text-center">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-credit-card me-2"></i>Complete Payment</h3>
+                </div>
+                <div class="card-body p-5">
+                    <i class="fas fa-lock fa-4x text-primary mb-4"></i>
+                    <h4 class="text-primary mb-3">Secure Payment Gateway</h4>
+                    
+                    <div class="alert alert-info text-start">
+                        <h6><i class="fas fa-info-circle me-2"></i>Payment Details</h6>
+                        <p class="mb-1"><strong>Amount:</strong> ₹{{ adoption_request.payment_amount }}</p>
+                        <p class="mb-1"><strong>Pet:</strong> {{ adoption_request.pet.name }}</p>
+                        <p class="mb-1"><strong>Shelter:</strong> {{ adoption_request.pet.shelter.username }}</p>
+                        <p class="mb-0"><strong>Order ID:</strong> {{ razorpay_order.id }}</p>
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        You will be redirected to Razorpay's secure payment page to complete your transaction.
+                    </p>
+
+                    <!-- Razorpay Payment Button -->
+                    <form action="{% url 'payment_success' %}" method="POST" id="razorpay-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order.id }}">
+                        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+                        
+                        <button type="button" id="pay-button" class="btn btn-primary btn-lg">
+                            <i class="fas fa-credit-card me-2"></i>Pay Now ₹{{ adoption_request.payment_amount }}
+                        </button>
+                    </form>
+
+                    <div class="mt-4">
+                        <a href="{% url 'process_payment' adoption_request.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const payButton = document.getElementById('pay-button');
+    
+    payButton.addEventListener('click', function() {
+        const options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ razorpay_order.amount }}",
+            "currency": "{{ razorpay_order.currency }}",
+            "name": "PetConnect",
+            "description": "Adoption Fee for {{ adoption_request.pet.name }}",
+            "image": "{% static 'images/logo.png' %}",
+            "order_id": "{{ razorpay_order.id }}",
+            "handler": function (response) {
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('razorpay-form').submit();
+            },
+            "prefill": {
+                "name": "{{ form_data.name }}",
+                "email": "{{ form_data.email }}",
+                "contact": "{{ form_data.phone }}"
+            },
+            "theme": {
+                "color": "#667eea"
+            },
+            "modal": {
+                "ondismiss": function() {
+                    window.location.href = "{% url 'process_payment' adoption_request.pk %}";
+                }
+            }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+    });
+});
+</script>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+</style>
+{% endblock %}

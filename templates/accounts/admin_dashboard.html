@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary">
+                        <i class="fas fa-tachometer-alt me-3"></i>Admin Dashboard
+                    </h1>
+                    <p class="lead text-muted">Complete overview of PetConnect platform</p>
+                </div>
+                <div>
+                    <a href="/admin/" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-cog me-2"></i>Django Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Users
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Pets
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_pets }}</div>
+                            <small class="text-success">{{ pets_available }} available</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-paw fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Services
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_services }}</div>
+                            <small class="text-info">{{ services_available }} available</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-concierge-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Bookings
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_bookings }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adoption & Booking Status -->
+    <div class="row mb-4">
+        <!-- Adoption Requests Status -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Adoption Requests Status</h6>
+                    <span class="badge bg-primary">{{ total_adoption_requests }} Total</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-warning bg-opacity-10">
+                                <h4 class="text-warning">{{ adoption_status_counts.pending }}</h4>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-success bg-opacity-10">
+                                <h4 class="text-success">{{ adoption_status_counts.approved }}</h4>
+                                <small class="text-muted">Approved</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-info bg-opacity-10">
+                                <h4 class="text-info">{{ adoption_status_counts.in_delivery }}</h4>
+                                <small class="text-muted">In Delivery</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-primary bg-opacity-10">
+                                <h4 class="text-primary">{{ adoption_status_counts.completed }}</h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Status -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-success">Service Bookings Status</h6>
+                    <span class="badge bg-success">{{ total_bookings }} Total</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-warning bg-opacity-10">
+                                <h4 class="text-warning">{{ booking_status_counts.pending }}</h4>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-success bg-opacity-10">
+                                <h4 class="text-success">{{ booking_status_counts.confirmed }}</h4>
+                                <small class="text-muted">Confirmed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-info bg-opacity-10">
+                                <h4 class="text-info">{{ booking_status_counts.in_progress }}</h4>
+                                <small class="text-muted">In Progress</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="border rounded p-3 bg-primary bg-opacity-10">
+                                <h4 class="text-primary">{{ booking_status_counts.completed }}</h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <!-- Recent Pets -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recently Added Pets</h6>
+                </div>
+                <div class="card-body">
+                    {% for pet in recent_pets %}
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ pet.name }}</h6>
+                            <small class="text-muted">{{ pet.breed }} • {{ pet.shelter.username }}</small>
+                        </div>
+                        <span class="badge bg-{% if pet.is_available %}success{% else %}secondary{% endif %}">
+                            {% if pet.is_available %}Available{% else %}Adopted{% endif %}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">No pets added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Services -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Recently Added Services</h6>
+                </div>
+                <div class="card-body">
+                    {% for service in recent_services %}
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ service.image.url }}" alt="{{ service.name }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ service.name }}</h6>
+                            <small class="text-muted">{{ service.get_category_display }} • ₹{{ service.price }}</small>
+                        </div>
+                        <span class="badge bg-{% if service.is_available %}success{% else %}secondary{% endif %}">
+                            {% if service.is_available %}Available{% else %}Unavailable{% endif %}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">No services added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <a href="/admin/auth/user/" class="btn btn-outline-primary w-100" target="_blank">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="/admin/adoption/pet/" class="btn btn-outline-success w-100" target="_blank">
+                                <i class="fas fa-paw me-2"></i>Manage Pets
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="/admin/services/service/" class="btn btn-outline-info w-100" target="_blank">
+                                <i class="fas fa-concierge-bell me-2"></i>Manage Services
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="/admin/adoption/adoptionrequest/" class="btn btn-outline-warning w-100" target="_blank">
+                                <i class="fas fa-heart me-2"></i>Adoption Requests
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+}
+.border-left-primary { border-left: 4px solid #4e73df !important; }
+.border-left-success { border-left: 4px solid #1cc88a !important; }
+.border-left-info { border-left: 4px solid #36b9cc !important; }
+.border-left-warning { border-left: 4px solid #f6c23e !important; }
+</style>
+{% endblock %}

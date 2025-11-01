@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">Find Your Perfect Companion</h1>
+            <p class="lead text-muted">Browse through our lovely pets waiting for their forever homes</p>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" id="filterForm">
+                        <!-- Main Search Row -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="search" 
+                                           placeholder="Search by name, breed, or description..." 
+                                           value="{{ search_query }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="sort_by" id="sortSelect">
+                                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                                    <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name A-Z</option>
+                                    <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %}>Name Z-A</option>
+                                    <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                    <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                    <option value="age_low" {% if selected_sort == 'age_low' %}selected{% endif %}>Age: Low to High</option>
+                                    <option value="age_high" {% if selected_sort == 'age_high' %}selected{% endif %}>Age: High to Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <button type="submit" class="btn btn-primary flex-fill">
+                                        <i class="fas fa-filter me-2"></i>Apply Filters
+                                    </button>
+                                    <a href="{% url 'pet_list' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Clear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters -->
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Pet Type</label>
+                                <select class="form-select" name="type" id="typeSelect">
+                                    <option value="">All Types</option>
+                                    {% for type_value, type_name in pet_types %}
+                                        <option value="{{ type_value }}" {% if selected_type == type_value %}selected{% endif %}>
+                                            {{ type_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Gender</label>
+                                <select class="form-select" name="gender" id="genderSelect">
+                                    <option value="">Any Gender</option>
+                                    {% for gender_value, gender_name in gender_choices %}
+                                        <option value="{{ gender_value }}" {% if selected_gender == gender_value %}selected{% endif %}>
+                                            {{ gender_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Size</label>
+                                <select class="form-select" name="size" id="sizeSelect">
+                                    <option value="">Any Size</option>
+                                    {% for size_value, size_name in size_choices %}
+                                        <option value="{{ size_value }}" {% if selected_size == size_value %}selected{% endif %}>
+                                            {{ size_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Min Age</label>
+                                <input type="number" class="form-control" name="min_age" placeholder="Months" 
+                                       value="{{ selected_min_age }}" min="0">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Max Age</label>
+                                <input type="number" class="form-control" name="max_age" placeholder="Months" 
+                                       value="{{ selected_max_age }}" min="0">
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Min Price (₹)</label>
+                                <input type="number" class="form-control" name="min_price" placeholder="0" 
+                                       value="{{ selected_min_price }}" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Max Price (₹)</label>
+                                <input type="number" class="form-control" name="max_price" placeholder="Any" 
+                                       value="{{ selected_max_price }}" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Count and Shelter Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5 class="text-muted">
+                {% if pets %}
+                    Found {{ pets|length }} pet{{ pets|length|pluralize }} matching your criteria
+                {% else %}
+                    No pets found
+                {% endif %}
+            </h5>
+        </div>
+        {% if user.is_authenticated and user.profile.role == 'shelter' %}
+        <div class="col-md-6 text-end">
+            <a href="{% url 'pet_create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Add New Pet
+            </a>
+            <a href="{% url 'my_pets' %}" class="btn btn-outline-primary">
+                <i class="fas fa-paw me-2"></i>My Pets
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pets Grid -->
+    {% if pets %}
+    <div class="row g-4">
+        {% for pet in pets %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 shadow-sm pet-card">
+                <div class="position-relative">
+                    <img src="{{ pet.image.url }}" class="card-img-top pet-image" alt="{{ pet.name }}" 
+                         style="height: 200px; object-fit: cover; cursor: pointer;" 
+                         data-pet-url="{% url 'pet_detail' pet.pk %}">
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-{% if pet.is_available %}success{% else %}secondary{% endif %}">
+                            {% if pet.is_available %}Available{% else %}Adopted{% endif %}
+                        </span>
+                    </div>
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge bg-primary">{{ pet.get_pet_type_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title pet-name" style="cursor: pointer;" data-pet-url="{% url 'pet_detail' pet.pk %}">
+                        {{ pet.name }}
+                    </h5>
+                    <div class="pet-meta mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-paw me-1"></i>{{ pet.breed }}<br>
+                            <i class="fas fa-birthday-cake me-1"></i>{{ pet.get_age_display }}<br>
+                            <i class="fas fa-venus-mars me-1"></i>{{ pet.get_gender_display }} • {{ pet.get_size_display }}
+                        </small>
+                    </div>
+                    <p class="card-text flex-grow-1">{{ pet.description|truncatewords:15 }}</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 text-primary mb-0">
+                                {% if pet.price > 0 %}
+                                    ₹{{ pet.price }}
+                                {% else %}
+                                    <span class="text-success">Free</span>
+                                {% endif %}
+                            </span>
+                            <div class="btn-group">
+                                <a href="{% url 'pet_detail' pet.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                {% if user.is_authenticated and user.profile.role == 'adopter' and pet.is_available %}
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#adoptModal{{ pet.pk }}">
+                                    <i class="fas fa-heart me-1"></i>Adopt
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">
+                        <i class="fas fa-home me-1"></i>Listed by {{ pet.shelter.username }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adopt Modal for each pet -->
+        {% if user.is_authenticated and user.profile.role == 'adopter' and pet.is_available %}
+        <div class="modal fade" id="adoptModal{{ pet.pk }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adopt {{ pet.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="img-fluid rounded mb-3" style="max-height: 150px;">
+                        <h4>Ready to adopt {{ pet.name }}?</h4>
+                        <p class="text-muted">Adoption feature will be available in the next update!</p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            You'll be able to submit an adoption request soon.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- No Results Message -->
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No pets found</h3>
+            <p class="text-muted">Try adjusting your search criteria or browse all pets.</p>
+            <a href="{% url 'pet_list' %}" class="btn btn-primary">
+                <i class="fas fa-paw me-2"></i>Browse All Pets
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+        <!-- Quick Stats Section -->
+    {% if pets %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <i class="fas fa-dog fa-2x text-primary mb-2"></i>
+                            <h4>{{ pets|length }}</h4>
+                            <p class="text-muted mb-0">Total Pets</p>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-cat fa-2x text-primary mb-2"></i>
+                            <h4>{{ pet_types_count }}</h4>
+                            <p class="text-muted mb-0">Different Types</p>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                            <h4>{{ shelters_count }}</h4>
+                            <p class="text-muted mb-0">Participating Shelters</p>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-heart fa-2x text-primary mb-2"></i>
+                            <h4>{{ pets.count }}</h4>
+                            <p class="text-muted mb-0">Ready for Adoption</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.pet-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 15px;
+}
+.pet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.pet-meta {
+    border-left: 3px solid #667eea;
+    padding-left: 10px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    padding: 10px;
+    border-radius: 5px;
+}
+.card-img-top {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+.input-group-text {
+    border: none;
+}
+.form-select, .form-control {
+    border-radius: 8px;
+}
+</style>
+
+<script>
+// Auto-submit form when certain filters change
+document.addEventListener('DOMContentLoaded', function() {
+    const autoSubmitFields = ['sortSelect', 'typeSelect', 'genderSelect', 'sizeSelect'];
+    
+    autoSubmitFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+
+    // Price range validation
+    const minPrice = document.querySelector('[name="min_price"]');
+    const maxPrice = document.querySelector('[name="max_price"]');
+    
+    if (minPrice && maxPrice) {
+        minPrice.addEventListener('change', validatePriceRange);
+        maxPrice.addEventListener('change', validatePriceRange);
+    }
+    
+    function validatePriceRange() {
+        const minVal = parseFloat(minPrice.value);
+        const maxVal = parseFloat(maxPrice.value);
+        
+        if (minVal && maxVal && minVal > maxVal) {
+            alert('Minimum price cannot be greater than maximum price');
+            minPrice.value = '';
+            maxPrice.value = '';
+        }
+    }
+
+    // Add click event listeners for pet images and names
+    const petImages = document.querySelectorAll('.pet-image');
+    const petNames = document.querySelectorAll('.pet-name');
+    
+    petImages.forEach(img => {
+        img.addEventListener('click', function() {
+            const petUrl = this.getAttribute('data-pet-url');
+            window.location.href = petUrl;
+        });
+    });
+    
+    petNames.forEach(name => {
+        name.addEventListener('click', function() {
+            const petUrl = this.getAttribute('data-pet-url');
+            window.location.href = petUrl;
+        });
+    });
+});
+</script>
+{% endblock %}

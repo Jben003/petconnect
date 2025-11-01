@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- User Info Card -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar-circle bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.profile.get_role_display }}</p>
+                    <div class="d-grid">
+                        <a href="{% url 'profile' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>My Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="text-primary mb-1">0</h4>
+                                <small class="text-muted">Adoption Requests</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3">
+                                <h4 class="text-primary mb-1">0</h4>
+                                <small class="text-muted">Service Bookings</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Welcome Section -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="text-primary">Welcome back, {{ user.username }}! 🐾</h3>
+                    <p class="lead mb-0">Ready to find your perfect pet companion?</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow feature-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-paw fa-3x text-primary mb-3"></i>
+                            <h5>Adopt a Pet</h5>
+                            <p class="text-muted">Browse available pets for adoption</p>
+                            <a href="{% url 'pet_list' %}" class="btn btn-primary">Browse Pets</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow feature-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-spa fa-3x text-primary mb-3"></i>
+                            <h5>Book Services</h5>
+                            <p class="text-muted">Find grooming and care services</p>
+                            <a href="{% url 'service_list' %}" class="btn btn-primary">View Services</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No recent activity yet</p>
+                        <p class="text-muted">Start by browsing pets or booking services!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

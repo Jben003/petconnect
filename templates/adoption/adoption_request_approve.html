@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Approve Adoption Request</h3>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-heart fa-4x text-success mb-3"></i>
+                    <h4>Approve adoption request for {{ adoption_request.pet.name }}?</h4>
+                    <p class="text-muted">
+                        This will automatically reject all other pending requests for {{ adoption_request.pet.name }} 
+                        and mark the pet as adopted.
+                    </p>
+                    
+                    <div class="alert alert-warning text-start">
+                        <h6><i class="fas fa-info-circle me-2"></i>Important:</h6>
+                        <ul class="mb-0">
+                            <li>All other pending requests for this pet will be rejected</li>
+                            <li>The pet will be marked as adopted and no longer available</li>
+                            <li>The adopter will be notified of your approval</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info text-start">
+                        <h6>Adopter Information:</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ adoption_request.adopter.username }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ adoption_request.adopter.email }}</p>
+                        <p class="mb-1"><strong>Phone:</strong> {{ adoption_request.adopter.profile.phone_number }}</p>
+                        <p class="mb-0"><strong>Address:</strong> {{ adoption_request.delivery_address }}</p>
+                    </div>
+
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'shelter_adoption_requests' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Go Back
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Yes, Approve Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

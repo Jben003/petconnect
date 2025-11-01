@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-credit-card me-2"></i>Complete Payment</h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Adoption Request Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <img src="{{ adoption_request.pet.image.url }}" alt="{{ adoption_request.pet.name }}" 
+                                 class="img-fluid rounded mb-3" style="max-height: 150px;">
+                            <h5>{{ adoption_request.pet.name }}</h5>
+                            <p class="text-muted small">{{ adoption_request.pet.breed }}</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Payment Summary</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Adoption Fee:</strong></p>
+                                        <p class="mb-1"><strong>Shelter:</strong></p>
+                                        <p class="mb-1"><strong>Status:</strong></p>
+                                        <p class="mb-0"><strong>Payment Status:</strong></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-1"><span class="h5 text-primary">₹{{ adoption_request.payment_amount }}</span></p>
+                                        <p class="mb-1">{{ adoption_request.pet.shelter.username }}</p>
+                                        <p class="mb-1"><span class="badge bg-success">{{ adoption_request.get_status_display }}</span></p>
+                                        <p class="mb-0"><span class="badge bg-warning">{{ adoption_request.get_payment_status_display }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <div class="payment-form">
+                        <h5 class="mb-4">Customer Details</h5>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Secure Payment:</strong> You will be redirected to Razorpay's secure payment gateway to complete the transaction.
+                        </div>
+
+                        <form method="POST" id="paymentForm">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label fw-bold">Full Name *</label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.name.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label fw-bold">Email Address *</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.email.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-4">
+                                        <label class="form-label fw-bold">Phone Number *</label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.phone.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Notice -->
+                            <div class="alert alert-success">
+                                <div class="d-flex">
+                                    <i class="fas fa-lock fa-2x me-3 text-success"></i>
+                                    <div>
+                                        <h6 class="mb-1">Secure Payment Gateway</h6>
+                                        <p class="mb-0 small">Powered by Razorpay. Your payment information is secure and encrypted.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'my_adoption_requests' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Requests
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-lock me-2"></i>Proceed to Pay ₹{{ adoption_request.payment_amount }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-form {
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    border: 2px solid #e9ecef;
+}
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+</style>
+{% endblock %}

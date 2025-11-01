@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-primary">Service Bookings</h1>
+                    <p class="text-muted">Manage bookings for your services</p>
+                </div>
+                <div>
+                    <!-- Status Filter -->
+                    <form method="GET" class="d-flex gap-2">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                            <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if bookings %}
+    <div class="row">
+        <div class="col-12">
+            {% for booking in bookings %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img src="{{ booking.service.image.url }}" alt="{{ booking.service.name }}" 
+                                 class="img-fluid rounded" style="height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-7">
+                            <h5>{{ booking.service.name }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-tag me-1"></i>{{ booking.service.get_category_display }} • 
+                                <i class="fas fa-clock me-1"></i>{{ booking.service.duration }}
+                            </p>
+                            
+                            <p class="mb-1"><strong>Client:</strong> {{ booking.adopter.username }}</p>
+                            <p class="mb-1"><strong>Email:</strong> {{ booking.adopter.email }}</p>
+                            <p class="mb-1"><strong>Phone:</strong> {{ booking.adopter.profile.phone_number }}</p>
+                            <p class="mb-1"><strong>Booking Time:</strong> {{ booking.booking_date|date:"M d, Y H:i" }}</p>
+                            
+                            {% if booking.special_instructions %}
+                            <p class="mb-1 mt-2"><strong>Special Instructions:</strong></p>
+                            <p class="text-muted">{{ booking.special_instructions }}</p>
+                            {% endif %}
+                            
+                            <p class="mb-1"><strong>Service Address:</strong></p>
+                            <p class="text-muted small">{{ booking.address }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-end">
+                                <span class="badge {{ booking.get_status_badge_class }} fs-6 mb-3">
+                                    {{ booking.get_status_display }}
+                                </span>
+                                
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ booking.created_at|date:"M d, Y" }}
+                                </p>
+                                
+                                <p class="h5 text-primary mb-3">₹{{ booking.service.price }}</p>
+                                
+                                {% if booking.status == 'pending' %}
+                                <div class="btn-group-vertical w-100">
+                                    <form method="POST" action="{% url 'booking_confirm' booking.pk %}" class="mb-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm w-100"
+                                                onclick="return confirm('Confirm this booking?')">
+                                            <i class="fas fa-check me-1"></i>Confirm
+                                        </button>
+                                    </form>
+                                </div>
+                                {% elif booking.status == 'confirmed' %}
+                                <div class="btn-group-vertical w-100">
+                                    <form method="POST" action="{% url 'booking_start' booking.pk %}" class="mb-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-info btn-sm w-100"
+                                                onclick="return confirm('Start this service?')">
+                                            <i class="fas fa-play me-1"></i>Start Service
+                                        </button>
+                                    </form>
+                                </div>
+                                {% elif booking.status == 'in_progress' %}
+                                <div class="btn-group-vertical w-100">
+                                    <form method="POST" action="{% url 'booking_complete' booking.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm w-100"
+                                                onclick="return confirm('Mark this service as completed?')">
+                                            <i class="fas fa-check me-1"></i>Complete
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-calendar fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No bookings</h3>
+            <p class="text-muted">
+                {% if status_filter %}
+                    No {{ status_filter }} bookings found.
+                {% else %}
+                    You haven't received any service bookings yet.
+                {% endif %}
+            </p>
+            <a href="{% url 'service_list' %}" class="btn btn-primary">
+                <i class="fas fa-concierge-bell me-2"></i>Browse Services
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+.btn-group-vertical .btn {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

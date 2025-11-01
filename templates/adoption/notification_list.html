@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-primary">Notifications</h1>
+                {% if notifications %}
+                <form method="POST" action="{% url 'mark_all_notifications_read' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-check-double me-2"></i>Mark All as Read
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <p class="text-muted">Stay updated with your pet adoption activities</p>
+        </div>
+    </div>
+
+    {% if notifications %}
+    <div class="row">
+        <div class="col-12">
+            {% for notification in notifications %}
+            <div class="card mb-3 {% if not notification.is_read %}border-primary{% endif %}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-1 {% if not notification.is_read %}fw-bold{% endif %}">
+                                {{ notification.message }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ notification.created_at|timesince }} ago
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if not notification.is_read %}
+                            <span class="badge bg-primary me-2">New</span>
+                            {% endif %}
+                            {% if notification.related_url %}
+                            <a href="{{ notification.related_url }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>View
+                            </a>
+                            {% endif %}
+                            {% if not notification.is_read %}
+                            <form method="POST" action="{% url 'mark_notification_read' notification.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-check me-1"></i>Mark Read
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No notifications yet</h3>
+            <p class="text-muted">You'll see notifications here for your adoption activities.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

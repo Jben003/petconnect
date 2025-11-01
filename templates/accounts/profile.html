@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-user-circle me-2"></i>My Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Admin User Section -->
+                    {% if user.is_superuser or user.is_staff or is_admin %}
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-shield-alt me-2"></i>Administrator Account</h5>
+                        <p class="mb-2">You have full administrative privileges across the PetConnect platform.</p>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <strong>Account Type:</strong> 
+                                <span class="badge bg-danger">System Administrator</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Access Level:</strong> 
+                                <span class="badge bg-dark">Full System Access</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning btn-sm me-2">
+                                <i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard
+                            </a>
+                            <a href="/admin/" class="btn btn-dark btn-sm" target="_blank">
+                                <i class="fas fa-cog me-1"></i>Django Admin
+                            </a>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-4 text-primary">Account Information</h5>
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Username</label>
+                                    {{ u_form.username }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    {{ u_form.email }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Regular User Section -->
+                    {% else %}
+                    <!-- Current Role Display -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Account Type:</strong> 
+                        <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
+                        <br>
+                        <small>Your account type cannot be changed. Contact support if you need to modify your account type.</small>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <h5 class="mb-4 text-primary">Account Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Username</label>
+                                    {{ u_form.username }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    {{ u_form.email }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-4 text-primary">Contact Details</h5>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Phone Number</label>
+                            {{ p_form.phone_number }}
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label">Address</label>
+                            {{ p_form.address }}
+                            <div class="form-text">This address will be used for pet delivery and service bookings.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Quick Stats -->
+            {% if user.is_superuser or user.is_staff %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Platform Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                <h5>{{ total_users }}</h5>
+                                <small class="text-muted">Total Users</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <i class="fas fa-paw fa-2x text-success mb-2"></i>
+                                <h5>{{ total_pets }}</h5>
+                                <small class="text-muted">Total Pets</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <i class="fas fa-concierge-bell fa-2x text-info mb-2"></i>
+                                <h5>{{ total_services }}</h5>
+                                <small class="text-muted">Total Services</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="border rounded p-3">
+                                <i class="fas fa-heart fa-2x text-warning mb-2"></i>
+                                <h5>{{ total_adoption_requests }}</h5>
+                                <small class="text-muted">Adoption Requests</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+.badge {
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

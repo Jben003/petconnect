@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow text-center">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Payment Successful!</h3>
+                </div>
+                <div class="card-body p-5">
+                    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                    <h2 class="text-success mb-3">Payment Completed</h2>
+                    
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading">₹{{ adoption_request.payment_amount }} Paid Successfully</h4>
+                        <p class="mb-2">Your payment for adopting <strong>{{ adoption_request.pet.name }}</strong> has been processed successfully.</p>
+                    </div>
+
+                    <div class="payment-details mb-4">
+                        <div class="row text-start">
+                            <div class="col-6">
+                                <p><strong>Payment Reference:</strong></p>
+                                <p><strong>Date & Time:</strong></p>
+                                <p><strong>Pet:</strong></p>
+                                <p><strong>Shelter:</strong></p>
+                            </div>
+                            <div class="col-6">
+                                <p><code>{{ adoption_request.payment_reference }}</code></p>
+                                <p>{{ adoption_request.payment_date|date:"M d, Y H:i" }}</p>
+                                <p>{{ adoption_request.pet.name }}</p>
+                                <p>{{ adoption_request.pet.shelter.username }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="next-steps mb-4">
+                        <h5 class="mb-3">What's Next?</h5>
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-truck fa-2x text-primary mb-2"></i>
+                                    <h6>Delivery Setup</h6>
+                                    <small class="text-muted">Shelter will contact you for delivery</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                                    <h6>Prepare Home</h6>
+                                    <small class="text-muted">Get ready for your new pet</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                                    <h6>Stay Available</h6>
+                                    <small class="text-muted">Be available for delivery calls</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                        <a href="{% url 'my_adoption_requests' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>View My Requests
+                        </a>
+                        <a href="{% url 'pet_list' %}" class="btn btn-primary">
+                            <i class="fas fa-paw me-2"></i>Browse More Pets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+.payment-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

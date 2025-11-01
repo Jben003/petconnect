@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="text-primary">Service Notifications</h1>
+            <p class="text-muted">Notifications related to your service bookings</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center py-5">
+                <div class="card-body">
+                    <i class="fas fa-concierge-bell fa-4x text-muted mb-3"></i>
+                    <h3 class="text-muted">Service Notifications</h3>
+                    <p class="text-muted mb-4">
+                        Service notifications are integrated with the main notification system.
+                        You can view all your notifications in one place.
+                    </p>
+                    <a href="{% url 'notification_list' %}" class="btn btn-primary">
+                        <i class="fas fa-bell me-2"></i>View All Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

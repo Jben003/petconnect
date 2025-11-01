@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-primary">My Pet Listings</h1>
+                <a href="{% url 'pet_create' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Pet
+                </a>
+            </div>
+            <p class="text-muted">Manage your pet listings and track adoption requests</p>
+        </div>
+    </div>
+
+    {% if pets %}
+    <div class="row g-4">
+        {% for pet in pets %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ pet.image.url }}" class="card-img-top" alt="{{ pet.name }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ pet.name }}</h5>
+                        <span class="badge bg-{% if pet.is_available %}success{% else %}secondary{% endif %}">
+                            {% if pet.is_available %}Available{% else %}Adopted{% endif %}
+                        </span>
+                    </div>
+                    <p class="card-text"><small class="text-muted">{{ pet.breed }} • {{ pet.get_age_display }}</small></p>
+                    <p class="card-text">{{ pet.description|truncatewords:15 }}</p>
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h6 text-primary mb-0">
+                                {% if pet.price > 0 %}
+                                    ${{ pet.price }}
+                                {% else %}
+                                    Free
+                                {% endif %}
+                            </span>
+                            <div class="btn-group">
+                                <a href="{% url 'pet_detail' pet.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'pet_update' pet.pk %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'pet_delete' pet.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-paw fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No pets listed yet</h3>
+            <p class="text-muted">Start by adding your first pet for adoption!</p>
+            <a href="{% url 'pet_create' %}" class="btn btn-primary">Add Your First Pet</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-primary">My Bookings</h1>
+            <p class="text-muted">Track the status of your service bookings</p>
+        </div>
+    </div>
+
+    {% if bookings %}
+    <div class="row">
+        <div class="col-12">
+            {% for booking in bookings %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="{{ booking.service.image.url }}" alt="{{ booking.service.name }}" 
+                                 class="img-fluid rounded" style="height: 150px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ booking.service.name }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-tag me-1"></i>{{ booking.service.get_category_display }} • 
+                                <i class="fas fa-clock me-1"></i>{{ booking.service.duration }}<br>
+                                <i class="fas fa-home me-1"></i>Provider: {{ booking.service.shelter.username }}
+                            </p>
+                            
+                            <p><strong>Booking Date:</strong> {{ booking.booking_date|date:"M d, Y H:i" }}</p>
+                            
+                            {% if booking.special_instructions %}
+                            <p><strong>Special Instructions:</strong></p>
+                            <p class="text-muted">{{ booking.special_instructions }}</p>
+                            {% endif %}
+                            
+                            <p class="mb-1"><strong>Service Address:</strong></p>
+                            <p class="text-muted small">{{ booking.address }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-end">
+                                <span class="badge {{ booking.get_status_badge_class }} fs-6 mb-3">
+                                    {{ booking.get_status_display }}
+                                </span>
+                                
+                                <p class="text-muted small mb-2">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Booked: {{ booking.created_at|date:"M d, Y" }}
+                                </p>
+                                
+                                <p class="h5 text-primary mb-3">₹{{ booking.service.price }}</p>
+                                
+                                {% if booking.can_be_cancelled %}
+                                <div class="mt-3">
+                                    <form method="POST" action="{% url 'booking_cancel' booking.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                            <i class="fas fa-times me-1"></i>Cancel Booking
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-calendar fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No bookings yet</h3>
+            <p class="text-muted">Start by browsing available services and making bookings!</p>
+            <a href="{% url 'service_list' %}" class="btn btn-primary">
+                <i class="fas fa-concierge-bell me-2"></i>Browse Services
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+</style>
+{% endblock %}
